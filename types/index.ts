@@ -7,7 +7,7 @@ export type Accion = {
 };
 
 export type PlantaEnum = 'Mármol Sintético' | 'Fibra de vidrio' | 'Muebles' | 'Cefi';
-export type OrigenEnum = 'Saldos' | 'Destrucciones' | 'IFI' | 'Rechazos';
+export type OrigenEnum = 'Saldos' | 'Destrucciones' | 'IFI' | 'Rechazos' | 'Reclamos Cliente';
 
 export interface FichaAlerta {
   id: string;

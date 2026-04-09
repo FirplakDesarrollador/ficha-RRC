@@ -354,12 +354,16 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
           </div>
           <div style={{ marginBottom: '32px' }}>
             {contingencias.map((acc, index) => (
-              <div key={index} style={{ background: 'var(--surface-hover)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                   <input type="text" placeholder="Acción (Descripción)" className="input-field" disabled={!isOwner} style={{ marginBottom: 0 }} value={acc.accion} onChange={e => updateContingencia(index, 'accion', e.target.value)} />
-                   <input type="date" className="input-field" disabled={!isOwner} style={{ marginBottom: 0 }} value={acc.fecha} onChange={e => updateContingencia(index, 'fecha', e.target.value)} />
+              <div key={index} style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '24px', alignItems: 'start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+                   <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Descripción y Fecha</label>
+                   <input type="text" placeholder="Acción (Descripción)" className="input-field" disabled={!isOwner} style={{ marginBottom: 0, height: '48px' }} value={acc.accion} onChange={e => updateContingencia(index, 'accion', e.target.value)} />
+                   <div style={{ marginTop: '12px' }}>
+                    <input type="date" className="input-field" disabled={!isOwner} style={{ marginBottom: 0, height: '48px' }} value={acc.fecha} onChange={e => updateContingencia(index, 'fecha', e.target.value)} />
+                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+                   <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Responsable y Estado</label>
                    <Combobox 
                      options={responsablesCargados}
                      value={acc.responsable}
@@ -367,21 +371,23 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
                      placeholder="Responsable..."
                      disabled={!isOwner}
                    />
-                   <Combobox 
-                     options={['OK', 'No OK']}
-                     value={acc.cumplimiento}
-                     onChange={(val) => updateContingencia(index, 'cumplimiento', val)}
-                     disabled={!isOwner}
-                   />
+                   <div style={{ marginTop: '12px' }}>
+                    <Combobox 
+                      options={['OK', 'NO OK']}
+                      value={acc.cumplimiento}
+                      onChange={(val) => updateContingencia(index, 'cumplimiento', val)}
+                      disabled={!isOwner}
+                    />
+                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Firma Responsable</label>
-                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '100px', position: 'relative' }}>
+                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px', position: 'relative' }}>
                      {!acc.firma || (contingenciaRefs.current[index] && !contingenciaRefs.current[index]?.isEmpty()) ? (
                          <SignatureCanvas 
                             ref={(el) => { if (el) contingenciaRefs.current[index] = el; }} 
                             penColor="black" 
-                            canvasProps={{ width: 250, height: 100, className: 'sigCanvas' }} 
+                            canvasProps={{ width: 250, height: 108, className: 'sigCanvas' }} 
                         />
                      ) : (
                          <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -399,7 +405,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
                      )}
                    </div>
                    {isOwner && (
-                       <button type="button" onClick={() => { contingenciaRefs.current[index]?.clear(); updateContingencia(index, 'firma', ''); }} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '12px', textAlign: 'right' }}>Limpiar Firma</button>
+                       <button type="button" onClick={() => { contingenciaRefs.current[index]?.clear(); updateContingencia(index, 'firma', ''); }} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>Limpiar Firma</button>
                    )}
                 </div>
               </div>
@@ -436,27 +442,27 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
                 )}
              </div>
              <div style={{ background: 'var(--surface-hover)', border: '1px solid var(--border)', padding: '20px', borderRadius: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas N.OK</label>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas NO OK</label>
                 {urlFotoNok ? (
                     <div style={{ marginBottom: '12px', border: '2px solid #ff4d4d', borderRadius: '10px', overflow: 'hidden', minHeight: '150px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#fff', position: 'relative' }}>
                         <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#ff4d4d', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', zIndex: 1 }}>ARCHIVO ADJUNTO</div>
                         <img 
                           src={urlFotoNok} 
-                          alt="Piezas N.OK" 
+                          alt="Piezas NO OK" 
                           style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }} 
                         />
                         <a href={urlFotoNok} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#ff4d4d', marginTop: '8px', marginBottom: '8px', textDecoration: 'underline' }}>Ver tamaño completo</a>
                     </div>
                 ) : (
                     <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px', border: '2px dashed var(--border)', borderRadius: '10px', marginBottom: '12px' }}>
-                       Sin foto adjunta (N.OK)
+                       Sin foto adjunta (NO OK)
                     </div>
                 )}
                 {isOwner && (
                   <div>
                     <input type="file" id="fileNok" accept="image/*" style={{ display: 'none' }} onChange={e => setFotoNokFile(e.target.files?.[0] || null)} />
                     <label htmlFor="fileNok" className="btn-secondary" style={{ display: 'inline-block', cursor: 'pointer', padding: '8px 16px', fontSize: '13px' }}>
-                       {urlFotoNok ? 'Cambiar Foto' : 'Subir Foto Piezas N.OK'}
+                       {urlFotoNok ? 'Cambiar Foto' : 'Subir Foto Piezas NO OK'}
                     </label>
                   </div>
                 )}
@@ -470,12 +476,16 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
           </div>
           <div style={{ marginBottom: '32px' }}>
             {erradicaciones.map((acc, index) => (
-              <div key={index} style={{ background: 'var(--surface-hover)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                   <input type="text" placeholder="Acción (Descripción)" className="input-field" disabled={!isOwner} style={{ marginBottom: 0 }} value={acc.accion} onChange={e => updateErradicacion(index, 'accion', e.target.value)} />
-                   <input type="date" className="input-field" disabled={!isOwner} style={{ marginBottom: 0 }} value={acc.fecha} onChange={e => updateErradicacion(index, 'fecha', e.target.value)} />
+              <div key={index} style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '24px', alignItems: 'start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+                   <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Descripción y Fecha</label>
+                   <input type="text" placeholder="Acción (Descripción)" className="input-field" disabled={!isOwner} style={{ marginBottom: 0, height: '48px' }} value={acc.accion} onChange={e => updateErradicacion(index, 'accion', e.target.value)} />
+                   <div style={{ marginTop: '12px' }}>
+                    <input type="date" className="input-field" disabled={!isOwner} style={{ marginBottom: 0, height: '48px' }} value={acc.fecha} onChange={e => updateErradicacion(index, 'fecha', e.target.value)} />
+                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+                   <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Responsable y Estado</label>
                    <Combobox 
                      options={responsablesCargados}
                      value={acc.responsable}
@@ -483,21 +493,23 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
                      placeholder="Responsable..."
                      disabled={!isOwner}
                    />
-                   <Combobox 
-                     options={['OK', 'No OK']}
-                     value={acc.cumplimiento}
-                     onChange={(val) => updateErradicacion(index, 'cumplimiento', val)}
-                     disabled={!isOwner}
-                   />
+                   <div style={{ marginTop: '12px' }}>
+                    <Combobox 
+                      options={['OK', 'NO OK']}
+                      value={acc.cumplimiento}
+                      onChange={(val) => updateErradicacion(index, 'cumplimiento', val)}
+                      disabled={!isOwner}
+                    />
+                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Firma Responsable</label>
-                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '100px', position: 'relative' }}>
+                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px', position: 'relative' }}>
                      {!acc.firma || (erradicacionRefs.current[index] && !erradicacionRefs.current[index]?.isEmpty()) ? (
                         <SignatureCanvas 
                             ref={(el) => { if (el) erradicacionRefs.current[index] = el; }} 
                             penColor="black" 
-                            canvasProps={{ width: 250, height: 100, className: 'sigCanvas' }} 
+                            canvasProps={{ width: 250, height: 108, className: 'sigCanvas' }} 
                         />
                      ) : (
                         <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -515,7 +527,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
                      )}
                    </div>
                    {isOwner && (
-                       <button type="button" onClick={() => { erradicacionRefs.current[index]?.clear(); updateErradicacion(index, 'firma', ''); }} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '12px', textAlign: 'right' }}>Limpiar Firma</button>
+                       <button type="button" onClick={() => { erradicacionRefs.current[index]?.clear(); updateErradicacion(index, 'firma', ''); }} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>Limpiar Firma</button>
                    )}
                 </div>
               </div>

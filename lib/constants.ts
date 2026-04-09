@@ -30,5 +30,6 @@ export const ORIGENES_LIST = [
   'Saldos',
   'Destrucciones',
   'IFI',
-  'Rechazos'
+  'Rechazos',
+  'Reclamos Cliente'
 ];

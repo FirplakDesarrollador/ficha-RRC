@@ -16,7 +16,7 @@ const FirplakLogo: React.FC<FirplakLogoProps> = ({
   const logoSrc = light ? '/logo-firplak-white.png' : '/logo-firplak.png';
   
   return (
-    <div style={{ display: 'flex', alignItems: 'center', ...style }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ...style }}>
       <img 
         src={logoSrc} 
         alt="FIRPLAK" 
