@@ -290,34 +290,40 @@ export default function CrearFichaPage() {
           </div>
           <div style={{ marginBottom: '32px' }}>
             {contingencias.map((acc, index) => (
-              <div key={index} style={{ background: 'var(--surface-hover)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                   <input type="text" placeholder="Acción (Descripción)" className="input-field" style={{ marginBottom: 0 }} value={acc.accion} onChange={e => updateContingencia(index, 'accion', e.target.value)} />
-                   <input type="date" className="input-field" style={{ marginBottom: 0 }} value={acc.fecha} onChange={e => updateContingencia(index, 'fecha', e.target.value)} />
+              <div key={index} style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '24px', alignItems: 'start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+                   <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Descripción y Fecha</label>
+                   <input type="text" placeholder="Acción (Descripción)" className="input-field" style={{ marginBottom: 0, height: '48px' }} value={acc.accion} onChange={e => updateContingencia(index, 'accion', e.target.value)} />
+                   <div style={{ marginTop: '12px' }}>
+                    <input type="date" className="input-field" style={{ marginBottom: 0, height: '48px' }} value={acc.fecha} onChange={e => updateContingencia(index, 'fecha', e.target.value)} />
+                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+                   <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Responsable y Estado</label>
                    <Combobox 
                      options={responsablesCargados}
                      value={acc.responsable}
                      onChange={(val) => updateContingencia(index, 'responsable', val)}
                      placeholder="Responsable..."
                    />
-                   <Combobox 
-                     options={['OK', 'No OK']}
-                     value={acc.cumplimiento}
-                     onChange={(val) => updateContingencia(index, 'cumplimiento', val)}
-                   />
+                   <div style={{ marginTop: '12px' }}>
+                    <Combobox 
+                      options={['OK', 'NO OK']}
+                      value={acc.cumplimiento}
+                      onChange={(val) => updateContingencia(index, 'cumplimiento', val)}
+                    />
+                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Firma Responsable</label>
-                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '100px' }}>
+                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px' }}>
                      <SignatureCanvas 
                        ref={(el) => { if (el) contingenciaRefs.current[index] = el; }} 
                        penColor="black" 
-                       canvasProps={{ width: 250, height: 100, className: 'sigCanvas' }} 
+                       canvasProps={{ width: 250, height: 108, className: 'sigCanvas' }} 
                      />
                    </div>
-                   <button type="button" onClick={() => contingenciaRefs.current[index]?.clear()} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '12px', textAlign: 'right' }}>Limpiar Firma</button>
+                   <button type="button" onClick={() => contingenciaRefs.current[index]?.clear()} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>Limpiar Firma</button>
                 </div>
               </div>
             ))}
@@ -336,10 +342,10 @@ export default function CrearFichaPage() {
                 <input type="file" accept="image/*" className="input-field" style={{ padding: '8px', marginBottom: 0 }} onChange={e => setFotoOk(e.target.files?.[0] || null)} />
              </div>
              <div style={{ background: 'var(--surface-hover)', border: '1px solid var(--border)', padding: '20px', borderRadius: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas N.OK</label>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas NO OK</label>
                 {previewNok && (
                   <div style={{ marginBottom: '12px', borderRadius: '10px', overflow: 'hidden', height: '150px', display: 'flex', justifyContent: 'center', background: '#fff', border: '1px solid var(--border)' }}>
-                    <img src={previewNok} alt="Preview N.OK" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+                    <img src={previewNok} alt="Preview NO OK" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
                 <input type="file" accept="image/*" className="input-field" style={{ padding: '8px', marginBottom: 0 }} onChange={e => setFotoNok(e.target.files?.[0] || null)} />
@@ -353,34 +359,40 @@ export default function CrearFichaPage() {
           </div>
           <div style={{ marginBottom: '32px' }}>
             {erradicaciones.map((acc, index) => (
-              <div key={index} style={{ background: 'var(--surface-hover)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                   <input type="text" placeholder="Acción (Descripción)" className="input-field" style={{ marginBottom: 0 }} value={acc.accion} onChange={e => updateErradicacion(index, 'accion', e.target.value)} />
-                   <input type="date" className="input-field" style={{ marginBottom: 0 }} value={acc.fecha} onChange={e => updateErradicacion(index, 'fecha', e.target.value)} />
+              <div key={index} style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '24px', alignItems: 'start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+                   <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Descripción y Fecha</label>
+                   <input type="text" placeholder="Acción (Descripción)" className="input-field" style={{ marginBottom: 0, height: '48px' }} value={acc.accion} onChange={e => updateErradicacion(index, 'accion', e.target.value)} />
+                   <div style={{ marginTop: '12px' }}>
+                    <input type="date" className="input-field" style={{ marginBottom: 0, height: '48px' }} value={acc.fecha} onChange={e => updateErradicacion(index, 'fecha', e.target.value)} />
+                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+                   <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Responsable y Estado</label>
                    <Combobox 
                      options={responsablesCargados}
                      value={acc.responsable}
                      onChange={(val) => updateErradicacion(index, 'responsable', val)}
                      placeholder="Responsable..."
                    />
-                   <Combobox 
-                     options={['OK', 'No OK']}
-                     value={acc.cumplimiento}
-                     onChange={(val) => updateErradicacion(index, 'cumplimiento', val)}
-                   />
+                   <div style={{ marginTop: '12px' }}>
+                    <Combobox 
+                      options={['OK', 'NO OK']}
+                      value={acc.cumplimiento}
+                      onChange={(val) => updateErradicacion(index, 'cumplimiento', val)}
+                    />
+                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Firma Responsable</label>
-                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '100px' }}>
+                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px' }}>
                      <SignatureCanvas 
                        ref={(el) => { if (el) erradicacionRefs.current[index] = el; }} 
                        penColor="black" 
-                       canvasProps={{ width: 250, height: 100, className: 'sigCanvas' }} 
+                       canvasProps={{ width: 250, height: 108, className: 'sigCanvas' }} 
                      />
                    </div>
-                   <button type="button" onClick={() => erradicacionRefs.current[index]?.clear()} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '12px', textAlign: 'right' }}>Limpiar Firma</button>
+                   <button type="button" onClick={() => erradicacionRefs.current[index]?.clear()} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>Limpiar Firma</button>
                 </div>
               </div>
             ))}
