@@ -250,6 +250,7 @@ export default function HomePage() {
                   <th style={{ padding: '12px' }}>Problema</th>
                   <th style={{ padding: '12px' }}>Responsable</th>
                   <th style={{ padding: '12px' }}>Estado</th>
+                  <th style={{ padding: '12px' }}>Fotos</th>
                   {isAdmin && <th style={{ padding: '12px', textAlign: 'center' }}>Acciones</th>}
                 </tr>
               </thead>
@@ -273,6 +274,24 @@ export default function HomePage() {
                     <td style={{ padding: '12px' }}>{ficha.responsable}</td>
                     <td style={{ padding: '12px' }}>
                       {ficha.seguimiento_d3 ? 'Trazabilidad Completa' : 'En Seguimiento'}
+                    </td>
+                    <td style={{ padding: '12px' }}>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                            {ficha.foto_piezas_ok ? (
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--primary)' }}>
+                                    <img src={ficha.foto_piezas_ok} alt="OK" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                            ) : (
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', background: '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '10px', color: '#ccc' }}>N/A</div>
+                            )}
+                            {ficha.foto_piezas_nok ? (
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #ff4d4d' }}>
+                                    <img src={ficha.foto_piezas_nok} alt="NO OK" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                            ) : (
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', background: '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '10px', color: '#ccc' }}>N/A</div>
+                            )}
+                        </div>
                     </td>
                     {isAdmin && (
                        <td style={{ padding: '12px', textAlign: 'center' }}>

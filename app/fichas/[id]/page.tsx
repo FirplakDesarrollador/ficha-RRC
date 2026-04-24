@@ -279,7 +279,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
 
         <form onSubmit={handleSubmit}>
           {/* Encabezado Principal */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+          <div className="responsive-header-grid">
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <Combobox 
                 label="Planta"
@@ -328,7 +328,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
 
           {/* Seguimiento */}
           <h3 style={{ marginBottom: '16px', color: 'var(--primary)' }}>Seguimiento</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '32px' }}>
+          <div className="seguimiento-grid">
              <div>
                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)' }}>Entrada</label>
                 <input type="text" className="input-field" disabled={!isOwner} value={segEntrada} onChange={e => setSegEntrada(e.target.value)} />
@@ -354,7 +354,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
           </div>
           <div style={{ marginBottom: '32px' }}>
             {contingencias.map((acc, index) => (
-              <div key={index} style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '24px', alignItems: 'start' }}>
+              <div key={index} className="accion-card-grid" style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Descripción y Fecha</label>
                    <input type="text" placeholder="Acción (Descripción)" className="input-field" disabled={!isOwner} style={{ marginBottom: 0, height: '48px' }} value={acc.accion} onChange={e => updateContingencia(index, 'accion', e.target.value)} />
@@ -414,7 +414,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
 
           {/* Piezas */}
           <h3 style={{ marginBottom: '16px', color: 'var(--primary)' }}>Reporte de Piezas y Adjuntos</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+          <div className="piezas-grid">
              <div style={{ background: 'var(--surface-hover)', border: '1px solid var(--border)', padding: '20px', borderRadius: '12px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas OK</label>
                 {urlFotoOk ? (
@@ -476,7 +476,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
           </div>
           <div style={{ marginBottom: '32px' }}>
             {erradicaciones.map((acc, index) => (
-              <div key={index} style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 1fr', gap: '24px', alignItems: 'start' }}>
+              <div key={index} className="accion-card-grid" style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Descripción y Fecha</label>
                    <input type="text" placeholder="Acción (Descripción)" className="input-field" disabled={!isOwner} style={{ marginBottom: 0, height: '48px' }} value={acc.accion} onChange={e => updateErradicacion(index, 'accion', e.target.value)} />

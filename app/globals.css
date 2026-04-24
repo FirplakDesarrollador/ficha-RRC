@@ -223,3 +223,82 @@ body {
   margin-bottom: 24px;
   font-weight: 500;
 }
+
+/* Responsive Grid Utilities */
+.responsive-header-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.seguimiento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .seguimiento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .glass-panel {
+    padding: 20px;
+  }
+  
+  .home-container {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .seguimiento-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.accion-card-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .accion-card-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.piezas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .piezas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Reusable form card */
+.form-card {
+  background: var(--surface-hover);
+  padding: 20px;
+  borderRadius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
