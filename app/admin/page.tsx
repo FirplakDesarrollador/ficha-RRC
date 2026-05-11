@@ -24,9 +24,13 @@ export default function AdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingNombre, setEditingNombre] = useState('');
   const [filtroBusqueda, setFiltroBusqueda] = useState('');
-  const [activeTab, setActiveTab] = useState<'defectos' | 'personal'>('defectos');
+  const [activeTab, setActiveTab] = useState<'defectos' | 'personal' | 'procesos' | 'mantenimiento'>('defectos');
+  const [fechaBorrar, setFechaBorrar] = useState('');
   const [responsables, setResponsables] = useState<any[]>([]);
+  const [procesos, setProcesos] = useState<any[]>([]);
   const [nuevoResponsable, setNuevoResponsable] = useState('');
+  const [idProcesoNuevoResp, setIdProcesoNuevoResp] = useState('');
+  const [nuevoProceso, setNuevoProceso] = useState('');
   const [filtroPersonal, setFiltroPersonal] = useState('');
 
   useEffect(() => {
@@ -54,7 +58,11 @@ export default function AdminPage() {
   useEffect(() => {
     if (isAdmin) {
       if (activeTab === 'defectos') fetchDefectos();
-      else fetchResponsables();
+      else if (activeTab === 'personal') {
+        fetchResponsables();
+        fetchProcesos();
+      }
+      else if (activeTab === 'procesos') fetchProcesos();
     }
   }, [isAdmin, planta, activeTab]);
 
@@ -70,9 +78,17 @@ export default function AdminPage() {
   const fetchResponsables = async () => {
     const { data } = await supabase
       .from('cat_responsables')
-      .select('*')
+      .select('*, cat_procesos(nombre)')
       .order('nombre', { ascending: true });
     if (data) setResponsables(data);
+  };
+
+  const fetchProcesos = async () => {
+    const { data } = await supabase
+      .from('cat_procesos')
+      .select('*')
+      .order('nombre', { ascending: true });
+    if (data) setProcesos(data);
   };
 
   const handleAddDefecto = async () => {
@@ -88,9 +104,25 @@ export default function AdminPage() {
   const handleAddResponsable = async () => {
     if (!nuevoResponsable.trim()) return;
     setSaving(true);
-    const { error } = await supabase.from('cat_responsables').insert([{ nombre: nuevoResponsable.trim() }]);
+    const { error } = await supabase.from('cat_responsables').insert([{ 
+      nombre: nuevoResponsable.trim(),
+      proceso_id: idProcesoNuevoResp || null
+    }]);
     if (error) alert('Error: ' + error.message);
-    else { setNuevoResponsable(''); fetchResponsables(); }
+    else { 
+      setNuevoResponsable(''); 
+      setIdProcesoNuevoResp('');
+      fetchResponsables(); 
+    }
+    setSaving(false);
+  };
+
+  const handleAddProceso = async () => {
+    if (!nuevoProceso.trim()) return;
+    setSaving(true);
+    const { error } = await supabase.from('cat_procesos').insert([{ nombre: nuevoProceso.trim() }]);
+    if (error) alert('Error: ' + error.message);
+    else { setNuevoProceso(''); fetchProcesos(); }
     setSaving(false);
   };
 
@@ -106,6 +138,13 @@ export default function AdminPage() {
     fetchResponsables();
   };
 
+  const handleDeleteProceso = async (id: string) => {
+    if (!confirm('¿Eliminar este proceso? Esto desvinculará al personal asociado.')) return;
+    await supabase.from('cat_procesos').delete().eq('id', id);
+    fetchProcesos();
+    fetchResponsables();
+  };
+
   const saveEditDefecto = async () => {
     if (!editingId || !editingNombre.trim()) return;
     setSaving(true);
@@ -118,9 +157,40 @@ export default function AdminPage() {
   const saveEditResponsable = async () => {
     if (!editingId || !editingNombre.trim()) return;
     setSaving(true);
-    await supabase.from('cat_responsables').update({ nombre: editingNombre.trim() }).eq('id', editingId);
+    await supabase.from('cat_responsables').update({ 
+      nombre: editingNombre.trim(),
+      proceso_id: idProcesoNuevoResp || null
+    }).eq('id', editingId);
     setEditingId(null);
+    setIdProcesoNuevoResp('');
     fetchResponsables();
+    setSaving(false);
+  };
+
+  const saveEditProceso = async () => {
+    if (!editingId || !editingNombre.trim()) return;
+    setSaving(true);
+    await supabase.from('cat_procesos').update({ nombre: editingNombre.trim() }).eq('id', editingId);
+    setEditingId(null);
+    fetchProcesos();
+    setSaving(false);
+  };
+
+  const handleBorrarPorFecha = async () => {
+    if (!fechaBorrar) return;
+    if (!confirm(`¿Estás seguro de que deseas borrar TODOS los datos de asistencia del día ${fechaBorrar}? Esta acción no se puede deshacer.`)) return;
+    
+    setSaving(true);
+    const { error } = await supabase
+      .from('registro_asistencia')
+      .delete()
+      .eq('fecha', fechaBorrar);
+      
+    if (error) alert('Error: ' + error.message);
+    else {
+      alert('Datos borrados correctamente.');
+      setFechaBorrar('');
+    }
     setSaving(false);
   };
 
@@ -163,7 +233,7 @@ export default function AdminPage() {
             style={{ 
               padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
               background: activeTab === 'defectos' ? 'var(--primary)' : 'transparent',
-              color: activeTab === 'defectos' ? '#fff' : 'var(--text-muted)',
+              color: activeTab === 'defectos' ? 'var(--surface)' : 'var(--text-muted)',
               fontWeight: 600
             }}
           >
@@ -174,11 +244,33 @@ export default function AdminPage() {
             style={{ 
               padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
               background: activeTab === 'personal' ? 'var(--primary)' : 'transparent',
-              color: activeTab === 'personal' ? '#fff' : 'var(--text-muted)',
+              color: activeTab === 'personal' ? 'var(--surface)' : 'var(--text-muted)',
               fontWeight: 600
             }}
           >
             Gestión de Personal
+          </button>
+          <button 
+            onClick={() => setActiveTab('procesos')}
+            style={{ 
+              padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+              background: activeTab === 'procesos' ? 'var(--primary)' : 'transparent',
+              color: activeTab === 'procesos' ? 'var(--surface)' : 'var(--text-muted)',
+              fontWeight: 600
+            }}
+          >
+            Gestión de Procesos
+          </button>
+          <button 
+            onClick={() => setActiveTab('mantenimiento')}
+            style={{ 
+              padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+              background: activeTab === 'mantenimiento' ? 'var(--primary)' : 'transparent',
+              color: activeTab === 'mantenimiento' ? 'var(--surface)' : 'var(--text-muted)',
+              fontWeight: 600
+            }}
+          >
+            Mantenimiento
           </button>
         </div>
 
@@ -213,7 +305,7 @@ export default function AdminPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {defectos.filter(d => d.nombre_defecto.toLowerCase().includes(filtroBusqueda.toLowerCase())).map(d => (
-                <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 20px', background: '#fff', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 20px', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
                   {editingId === d.id ? (
                     <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
                       <input className="input-field" style={{ marginBottom: 0, flex: 1 }} value={editingNombre} onChange={e => setEditingNombre(e.target.value)} />
@@ -225,7 +317,7 @@ export default function AdminPage() {
                       <span>{formatText(d.nombre_defecto)}</span>
                       <div style={{ display: 'flex', gap: '10px' }}>
                         <button onClick={() => { setEditingId(d.id); setEditingNombre(d.nombre_defecto); }} style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}>Editar</button>
-                        <button onClick={() => handleDeleteDefecto(d.id)} style={{ color: '#ff4d4d', background: 'none', border: 'none', cursor: 'pointer' }}>Borrar</button>
+                        <button onClick={() => handleDeleteDefecto(d.id)} style={{ color: 'var(--text)', background: 'none', border: 'none', cursor: 'pointer' }}>Borrar</button>
                       </div>
                     </>
                   )}
@@ -233,14 +325,20 @@ export default function AdminPage() {
               ))}
             </div>
           </>
-        ) : (
+        ) : activeTab === 'personal' ? (
           <>
             <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>Lista oficial de responsables que aparecerá en los formularios.</p>
             <div style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '15px', marginBottom: '30px', border: '1px solid var(--border)' }}>
               <h3 style={{ marginBottom: '12px', color: 'var(--primary)' }}>Añadir Responsable</h3>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <input className="input-field" style={{ marginBottom: 0, flex: 1 }} value={nuevoResponsable} onChange={e => setNuevoResponsable(e.target.value)} />
-                <button className="btn-primary" style={{ width: 'auto' }} onClick={handleAddResponsable} disabled={saving}>Añadir</button>
+              <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                <input placeholder="Nombre completo" className="input-field" style={{ marginBottom: 0 }} value={nuevoResponsable} onChange={e => setNuevoResponsable(e.target.value)} />
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <select className="input-field" style={{ marginBottom: 0, flex: 1 }} value={idProcesoNuevoResp} onChange={e => setIdProcesoNuevoResp(e.target.value)}>
+                    <option value="">Seleccionar Proceso...</option>
+                    {procesos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                  </select>
+                  <button className="btn-primary" style={{ width: 'auto' }} onClick={handleAddResponsable} disabled={saving}>Añadir</button>
+                </div>
               </div>
             </div>
 
@@ -254,19 +352,61 @@ export default function AdminPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {responsables.filter(r => r.nombre.toLowerCase().includes(filtroPersonal.toLowerCase())).map(r => (
-                <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 20px', background: '#fff', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                <div key={r.id} style={{ display: 'flex', flexDirection: 'column', padding: '12px 20px', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
                   {editingId === r.id ? (
+                    <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', width: '100%' }}>
+                      <input className="input-field" style={{ marginBottom: 0 }} value={editingNombre} onChange={e => setEditingNombre(e.target.value)} />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <select className="input-field" style={{ marginBottom: 0, flex: 1 }} value={idProcesoNuevoResp} onChange={e => setIdProcesoNuevoResp(e.target.value)}>
+                          <option value="">Seleccionar Proceso...</option>
+                          {procesos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                        </select>
+                        <button className="btn-primary" style={{ width: 'auto' }} onClick={saveEditResponsable}>✓</button>
+                        <button className="btn-secondary" style={{ width: 'auto' }} onClick={() => { setEditingId(null); setIdProcesoNuevoResp(''); }}>×</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 600 }}>{r.nombre}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Proceso: {r.cat_procesos?.nombre || 'Sin asignar'}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={() => { setEditingId(r.id); setEditingNombre(r.nombre); setIdProcesoNuevoResp(r.proceso_id || ''); }} style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}>Editar</button>
+                        <button onClick={() => handleDeleteResponsable(r.id)} style={{ color: 'var(--text)', background: 'none', border: 'none', cursor: 'pointer' }}>Borrar</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        ) : activeTab === 'procesos' ? (
+          <>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>Gestión de los procesos o áreas de la planta.</p>
+            <div style={{ background: 'var(--surface-hover)', padding: '20px', borderRadius: '15px', marginBottom: '30px', border: '1px solid var(--border)' }}>
+              <h3 style={{ marginBottom: '12px', color: 'var(--primary)' }}>Añadir Proceso</h3>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input placeholder="Nombre del proceso" className="input-field" style={{ marginBottom: 0, flex: 1 }} value={nuevoProceso} onChange={e => setNuevoProceso(e.target.value)} />
+                <button className="btn-primary" style={{ width: 'auto' }} onClick={handleAddProceso} disabled={saving}>Añadir</button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {procesos.map(p => (
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 20px', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  {editingId === p.id ? (
                     <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
                       <input className="input-field" style={{ marginBottom: 0, flex: 1 }} value={editingNombre} onChange={e => setEditingNombre(e.target.value)} />
-                      <button className="btn-primary" style={{ width: 'auto' }} onClick={saveEditResponsable}>✓</button>
+                      <button className="btn-primary" style={{ width: 'auto' }} onClick={saveEditProceso}>✓</button>
                       <button className="btn-secondary" style={{ width: 'auto' }} onClick={() => setEditingId(null)}>×</button>
                     </div>
                   ) : (
                     <>
-                      <span>{r.nombre}</span>
+                      <span>{p.nombre}</span>
                       <div style={{ display: 'flex', gap: '10px' }}>
-                        <button onClick={() => { setEditingId(r.id); setEditingNombre(r.nombre); }} style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}>Editar</button>
-                        <button onClick={() => handleDeleteResponsable(r.id)} style={{ color: '#ff4d4d', background: 'none', border: 'none', cursor: 'pointer' }}>Borrar</button>
+                        <button onClick={() => { setEditingId(p.id); setEditingNombre(p.nombre); }} style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}>Editar</button>
+                        <button onClick={() => handleDeleteProceso(p.id)} style={{ color: 'var(--text)', background: 'none', border: 'none', cursor: 'pointer' }}>Borrar</button>
                       </div>
                     </>
                   )}
@@ -274,7 +414,39 @@ export default function AdminPage() {
               ))}
             </div>
           </>
-        )}
+        ) : activeTab === 'mantenimiento' ? (
+          <>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>Herramientas de limpieza y mantenimiento de la base de datos.</p>
+            <div style={{ background: '#fff5f5', padding: '30px', borderRadius: '15px', border: '1px solid #fed7d7' }}>
+              <h3 style={{ color: '#c53030', marginTop: 0, marginBottom: '10px' }}>Borrar Asistencia por Fecha</h3>
+              <p style={{ color: '#742a2a', fontSize: '14px', marginBottom: '20px' }}>
+                Usa esta herramienta si se guardaron datos incorrectos en un día específico. 
+                <strong> Esta acción borrará todos los registros de ese día permanentemente.</strong>
+              </p>
+              
+              <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Seleccionar Fecha</label>
+                  <input 
+                    type="date" 
+                    className="input-field" 
+                    value={fechaBorrar} 
+                    onChange={e => setFechaBorrar(e.target.value)}
+                    style={{ marginBottom: 0 }}
+                  />
+                </div>
+                <button 
+                  onClick={handleBorrarPorFecha}
+                  className="btn-primary" 
+                  disabled={saving || !fechaBorrar}
+                  style={{ background: '#e53e3e', border: 'none', padding: '15px 30px', width: 'auto' }}
+                >
+                  {saving ? <div className="spinner"></div> : 'BORRAR DATOS'}
+                </button>
+              </div>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import FirplakLogo from '@/components/FirplakLogo';
 import Combobox from '@/components/Combobox';
 import { PLANTAS_LIST, ORIGENES_LIST } from '@/lib/constants';
+import { isAuthorized } from '@/lib/auth';
 
 export default function DetalleFichaPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [isAuthorizedUser, setIsAuthorizedUser] = useState(false);
 
   // Form states
   const [planta, setPlanta] = useState<PlantaEnum>('Mármol Sintético');
@@ -65,7 +67,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
   const [fotoOkFile, setFotoOkFile] = useState<File | null>(null);
   const [fotoNokFile, setFotoNokFile] = useState<File | null>(null);
 
-  const emptyAccion: Accion = { accion: '', responsable: '', firma: null, fecha: '', cumplimiento: 'OK' };
+  const emptyAccion: Accion = { accion: '', responsable: '', firma: null, fecha: '', cumplimiento: 'Pendiente' };
   const [contingencias, setContingencias] = useState<Accion[]>([{ ...emptyAccion }]);
   const [erradicaciones, setErradicaciones] = useState<Accion[]>([{ ...emptyAccion }]);
 
@@ -82,6 +84,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
           return;
         }
         setUser(session.user);
+        setIsAuthorizedUser(isAuthorized(session.user.email));
 
         const { data: ficha, error: fetchError } = await supabase
           .from('fichas_alerta')
@@ -185,7 +188,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isOwner) return;
+    if (!isOwner && !isAuthorizedUser) return;
 
     try {
       setSaving(true);
@@ -373,16 +376,16 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
                    />
                    <div style={{ marginTop: '12px' }}>
                     <Combobox 
-                      options={['OK', 'NO OK']}
+                      options={['Pendiente', 'OK', 'NO OK']}
                       value={acc.cumplimiento}
                       onChange={(val) => updateContingencia(index, 'cumplimiento', val)}
-                      disabled={!isOwner}
+                      disabled={!isAuthorizedUser}
                     />
                    </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Firma Responsable</label>
-                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px', position: 'relative' }}>
+                   <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px', position: 'relative' }}>
                      {!acc.firma || (contingenciaRefs.current[index] && !contingenciaRefs.current[index]?.isEmpty()) ? (
                          <SignatureCanvas 
                             ref={(el) => { if (el) contingenciaRefs.current[index] = el; }} 
@@ -418,7 +421,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
              <div style={{ background: 'var(--surface-hover)', border: '1px solid var(--border)', padding: '20px', borderRadius: '12px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas OK</label>
                 {urlFotoOk ? (
-                    <div style={{ marginBottom: '12px', border: '2px solid var(--primary)', borderRadius: '10px', overflow: 'hidden', minHeight: '150px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#fff', position: 'relative' }}>
+                    <div style={{ marginBottom: '12px', border: '2px solid var(--primary)', borderRadius: '10px', overflow: 'hidden', minHeight: '150px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'var(--surface)', position: 'relative' }}>
                         <div style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--primary)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', zIndex: 1 }}>ARCHIVO ADJUNTO</div>
                         <img 
                           src={urlFotoOk} 
@@ -444,14 +447,14 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
              <div style={{ background: 'var(--surface-hover)', border: '1px solid var(--border)', padding: '20px', borderRadius: '12px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas NO OK</label>
                 {urlFotoNok ? (
-                    <div style={{ marginBottom: '12px', border: '2px solid #ff4d4d', borderRadius: '10px', overflow: 'hidden', minHeight: '150px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#fff', position: 'relative' }}>
-                        <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#ff4d4d', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', zIndex: 1 }}>ARCHIVO ADJUNTO</div>
+                    <div style={{ marginBottom: '12px', border: '2px solid var(--text)', borderRadius: '10px', overflow: 'hidden', minHeight: '150px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'var(--surface)', position: 'relative' }}>
+                        <div style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--text)', color: 'var(--surface)', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', zIndex: 1 }}>ARCHIVO ADJUNTO</div>
                         <img 
                           src={urlFotoNok} 
                           alt="Piezas NO OK" 
                           style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }} 
                         />
-                        <a href={urlFotoNok} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#ff4d4d', marginTop: '8px', marginBottom: '8px', textDecoration: 'underline' }}>Ver tamaño completo</a>
+                        <a href={urlFotoNok} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: 'var(--text)', marginTop: '8px', marginBottom: '8px', textDecoration: 'underline' }}>Ver tamaño completo</a>
                     </div>
                 ) : (
                     <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px', border: '2px dashed var(--border)', borderRadius: '10px', marginBottom: '12px' }}>
@@ -495,16 +498,16 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
                    />
                    <div style={{ marginTop: '12px' }}>
                     <Combobox 
-                      options={['OK', 'NO OK']}
+                      options={['Pendiente', 'OK', 'NO OK']}
                       value={acc.cumplimiento}
                       onChange={(val) => updateErradicacion(index, 'cumplimiento', val)}
-                      disabled={!isOwner}
+                      disabled={!isAuthorizedUser}
                     />
                    </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Firma Responsable</label>
-                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px', position: 'relative' }}>
+                   <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px', position: 'relative' }}>
                      {!acc.firma || (erradicacionRefs.current[index] && !erradicacionRefs.current[index]?.isEmpty()) ? (
                         <SignatureCanvas 
                             ref={(el) => { if (el) erradicacionRefs.current[index] = el; }} 
@@ -534,7 +537,7 @@ export default function DetalleFichaPage({ params }: { params: Promise<{ id: str
             ))}
           </div>
 
-          {isOwner && (
+          {(isOwner || isAuthorizedUser) && (
             <button type="submit" className="btn-primary" disabled={saving} style={{ padding: '16px 32px', fontSize: '18px' }}>
                 {saving ? <div className="spinner"></div> : 'Guardar Cambios'}
             </button>
