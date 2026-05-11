@@ -282,14 +282,14 @@ export default function HomePage() {
                                     <img src={ficha.foto_piezas_ok} alt="OK" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 </div>
                             ) : (
-                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', background: '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '10px', color: '#ccc' }}>N/A</div>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', background: 'var(--surface-hover)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '10px', color: 'var(--text-muted)' }}>N/A</div>
                             )}
                             {ficha.foto_piezas_nok ? (
-                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #ff4d4d' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--text)' }}>
                                     <img src={ficha.foto_piezas_nok} alt="NO OK" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 </div>
                             ) : (
-                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', background: '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '10px', color: '#ccc' }}>N/A</div>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', background: 'var(--surface-hover)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '10px', color: 'var(--text-muted)' }}>N/A</div>
                             )}
                         </div>
                     </td>
@@ -297,7 +297,7 @@ export default function HomePage() {
                        <td style={{ padding: '12px', textAlign: 'center' }}>
                          <button 
                            onClick={(e) => handleDelete(e, ficha.id)}
-                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff4d4d', padding: '8px' }}
+                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text)', padding: '8px' }}
                            title="Eliminar Ficha"
                          >
                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none">

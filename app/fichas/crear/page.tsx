@@ -10,11 +10,13 @@ import SignatureCanvas from 'react-signature-canvas';
 import FirplakLogo from '@/components/FirplakLogo';
 import Combobox from '@/components/Combobox';
 import { PLANTAS_LIST, ORIGENES_LIST } from '@/lib/constants';
+import { isAuthorized } from '@/lib/auth';
 
 export default function CrearFichaPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthorizedUser, setIsAuthorizedUser] = useState(false);
 
   const [planta, setPlanta] = useState<PlantaEnum>('Mármol Sintético');
   const [responsable, setResponsable] = useState('');
@@ -29,6 +31,9 @@ export default function CrearFichaPage() {
   useEffect(() => {
     fetchDefectos();
     fetchResponsables();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthorizedUser(isAuthorized(session?.user?.email));
+    });
   }, [planta]);
 
   const fetchDefectos = async () => {
@@ -106,7 +111,7 @@ export default function CrearFichaPage() {
     }
   }, [fotoNok]);
 
-  const emptyAccion: Accion = { accion: '', responsable: '', firma: null, fecha: '', cumplimiento: 'OK' };
+  const emptyAccion: Accion = { accion: '', responsable: '', firma: null, fecha: '', cumplimiento: 'Pendiente' };
   const [contingencias, setContingencias] = useState<Accion[]>([{ ...emptyAccion }]);
   const [erradicaciones, setErradicaciones] = useState<Accion[]>([{ ...emptyAccion }]);
 
@@ -308,15 +313,16 @@ export default function CrearFichaPage() {
                    />
                    <div style={{ marginTop: '12px' }}>
                     <Combobox 
-                      options={['OK', 'NO OK']}
+                      options={['Pendiente', 'OK', 'NO OK']}
                       value={acc.cumplimiento}
                       onChange={(val) => updateContingencia(index, 'cumplimiento', val)}
+                      disabled={!isAuthorizedUser}
                     />
                    </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Firma Responsable</label>
-                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px' }}>
+                   <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px' }}>
                      <SignatureCanvas 
                        ref={(el) => { if (el) contingenciaRefs.current[index] = el; }} 
                        penColor="black" 
@@ -335,7 +341,7 @@ export default function CrearFichaPage() {
              <div style={{ background: 'var(--surface-hover)', border: '1px solid var(--border)', padding: '20px', borderRadius: '12px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas OK</label>
                 {previewOk && (
-                  <div style={{ marginBottom: '12px', borderRadius: '10px', overflow: 'hidden', height: '150px', display: 'flex', justifyContent: 'center', background: '#fff', border: '1px solid var(--border)' }}>
+                  <div style={{ marginBottom: '12px', borderRadius: '10px', overflow: 'hidden', height: '150px', display: 'flex', justifyContent: 'center', background: 'var(--surface)', border: '1px solid var(--border)' }}>
                     <img src={previewOk} alt="Preview OK" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
@@ -344,7 +350,7 @@ export default function CrearFichaPage() {
              <div style={{ background: 'var(--surface-hover)', border: '1px solid var(--border)', padding: '20px', borderRadius: '12px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Foto de Piezas NO OK</label>
                 {previewNok && (
-                  <div style={{ marginBottom: '12px', borderRadius: '10px', overflow: 'hidden', height: '150px', display: 'flex', justifyContent: 'center', background: '#fff', border: '1px solid var(--border)' }}>
+                  <div style={{ marginBottom: '12px', borderRadius: '10px', overflow: 'hidden', height: '150px', display: 'flex', justifyContent: 'center', background: 'var(--surface)', border: '1px solid var(--border)' }}>
                     <img src={previewNok} alt="Preview NO OK" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
@@ -377,15 +383,16 @@ export default function CrearFichaPage() {
                    />
                    <div style={{ marginTop: '12px' }}>
                     <Combobox 
-                      options={['OK', 'NO OK']}
+                      options={['Pendiente', 'OK', 'NO OK']}
                       value={acc.cumplimiento}
                       onChange={(val) => updateErradicacion(index, 'cumplimiento', val)}
+                      disabled={!isAuthorizedUser}
                     />
                    </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                    <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Firma Responsable</label>
-                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px' }}>
+                   <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', height: '108px' }}>
                      <SignatureCanvas 
                        ref={(el) => { if (el) erradicacionRefs.current[index] = el; }} 
                        penColor="black" 
